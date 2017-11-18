@@ -29,13 +29,14 @@ os.system('clear')
 def fct_dump_RAM():
 	RAM = raw_input("Choisissez un nom pour le dump de la RAM :")
 	with open(RAM,"wb") as outfile:
-		output = subprocess.Popen(["./osxpmem '%s'" % RAM ], shell=True)
+		output = subprocess.Popen(["./osxpmem --format raw '%s'" % RAM ], shell=True)
+		var_action = "null"
 
 def fct_artefact():
 	RAM = raw_input("Choisissez un nom pour le dump de la RAM :")
 	fichier = raw_input("Choisissez un nom pour le fichier tar.gz de sortie :")
 	with open(RAM,"wb") as outfile:
-		output = subprocess.Popen(["./osxpmem '%s'" % RAM ], shell=True)
+		output = subprocess.Popen(["./osxpmem --format raw '%s'" % RAM ], shell=True)
 	with open(fichier,"wb") as ofile:
 		output = subprocess.Popen(["/usr/bin/python2.7 osxcollector.py -c -d -l -i '%s'" % fichier ], shell=True)
 	sys.exit()
