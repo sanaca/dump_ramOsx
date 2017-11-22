@@ -107,6 +107,8 @@ while var_attack != "q":
 		print_red("Votre version d'OSX est: El Capitan / 10.11")
 	elif var_version == "16" : 
 		print_red("Votre version d'OSX est: Sierra / 10.12")
+	elif var_version == "17" : 
+		print_red("Votre version d'OSX est: High Sierra / 10.13")
 	else: 
 		print_red("\n\nVersion d'OSX non supporté.\n\n")
 		exit()
