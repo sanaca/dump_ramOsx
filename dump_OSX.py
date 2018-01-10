@@ -38,7 +38,7 @@ def fct_artefact():
 	with open(RAM,"wb") as outfile:
 		output = subprocess.Popen(["./osxpmem --format raw '%s'" % RAM ], shell=True)
 	with open(fichier,"wb") as ofile:
-		output = subprocess.Popen(["/usr/bin/python2.7 osxcollector.py -c -d -l -i '%s'" % fichier ], shell=True)
+		output = subprocess.Popen(["/usr/bin/python2.7 outils/osxcollector.py -c -d -l -i '%s'" % fichier ], shell=True)
 	sys.exit()
 def fct_checksum():
 	def md5file(path, blocksize = 65536):
