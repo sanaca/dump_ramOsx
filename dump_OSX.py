@@ -69,7 +69,6 @@ def fct_checksum():
 			file_md5 = md5file(path)
 			file_sha = sha256hash(path)
 			data = ({'chemin': dirName, 'fichier': fname, 'md5': file_md5, 'sha256': file_sha})
-			#with open('Checksum.json', 'a') as f:
 			with open(fichier, 'a') as f:
 				jsonData = json.dumps(data)
 				json.dump(jsonData, f)
