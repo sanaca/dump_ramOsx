@@ -136,15 +136,3 @@ while var_attack != "q":
 	else: 
 		print_red("\nVeuillez choisir 1, 2, 3 ou q\n")
 var_action = "null"
-
-
-
-
-
-
-
-
-
-
-
-
