@@ -11,6 +11,7 @@ import hashlib
 import commands
 import json
 import time,datetime
+import shutil
 
 def print_red(text):
 	print ('\033[22;31m' + text + '\033[0;m')
@@ -28,15 +29,26 @@ os.system('clear')
 
 def fct_dump_RAM():
 	RAM = raw_input("Choisissez un nom pour le dump de la RAM :")
+	volumes = os.popen("ls /Volumes").read()
+	print (volumes)
+	locate = raw_input("Dans quel volume voulez-vous le copier?")
 	with open(RAM,"wb") as outfile:
-		output = subprocess.Popen(["./osxpmem --format raw '%s'" % RAM ], shell=True)
+		shutil.copyfile('osxpmem', '/tmp/osxpmem')
+		shutil.copytree('pmem.kext', '/tmp/pmem.kext')
+		output = subprocess.Popen(["cd /tmp && chmod +x pmem.kext osxpmem && ./osxpmem --format raw /Volumes/'%s'/'%s'" % (locate, RAM) ], shell=True)
 		var_action = "null"
+		sys.exit()
 
 def fct_artefact():
 	RAM = raw_input("Choisissez un nom pour le dump de la RAM :")
+	volumes = os.popen("ls /Volumes").read()
+	print (volumes)
+	locate = raw_input("Dans quel volume voulez-vous le copier?")
 	fichier = raw_input("Choisissez un nom pour le fichier tar.gz de sortie :")
 	with open(RAM,"wb") as outfile:
-		output = subprocess.Popen(["./osxpmem --format raw '%s'" % RAM ], shell=True)
+		shutil.copyfile('osxpmem', '/tmp/osxpmem')
+		shutil.copytree('pmem.kext', '/tmp/pmem.kext')
+		output = subprocess.Popen(["cd /tmp && chmod +x pmem.kext osxpmem && ./osxpmem --format raw /Volumes/'%s'/'%s'" % (locate, RAM) ], shell=True)
 	with open(fichier,"wb") as ofile:
 		output = subprocess.Popen(["/usr/bin/python2.7 outils/osxcollector.py -c -d -l -i '%s'" % fichier ], shell=True)
 	sys.exit()
