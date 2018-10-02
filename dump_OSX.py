@@ -108,8 +108,10 @@ while var_attack != "q":
 		print_red("Votre version d'OSX est: Sierra / 10.12")
 	elif var_version == "17" : 
 		print_red("Votre version d'OSX est: High Sierra / 10.13")
+	elif var_version == "18" : 
+		print_red("Votre version d'OSX est: Mojave / 10.14")
 	else: 
-		print_red("\n\nVersion d'OSX non supporté.\n\n")
+		print_red("\n\nVersion d'OSX non supportÃ©.\n\n")
 		exit()
 
 	print_log("Notez cette date/heure dans votre rapport: " + str(datetime.datetime.now()))
