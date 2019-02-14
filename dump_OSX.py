@@ -12,6 +12,8 @@ import commands
 import json
 import time,datetime
 import shutil
+import tempfile
+import platform
 
 def print_red(text):
 	print ('\033[22;31m' + text + '\033[0;m')
@@ -33,10 +35,20 @@ def fct_dump_RAM():
 	print (volumes)
 	locate = raw_input("Dans quel volume voulez-vous le copier?")
 	with open(RAM,"wb") as outfile:
-		shutil.copyfile('osxpmem', '/tmp/osxpmem')
-		shutil.copytree('pmem.kext', '/tmp/pmem.kext')
-		output = subprocess.Popen(["cd /tmp && chmod +x pmem.kext osxpmem && ./osxpmem --format raw /Volumes/'%s'/'%s'" % (locate, RAM) ], shell=True)
+		f = tempfile.mkdtemp()
+		shutil.copyfile('osxpmem', f + '/osxpmem')
+		shutil.copytree('pmem.kext', f + '/pmem.kext')
+		output = subprocess.Popen(["cd %s && chmod +x pmem.kext osxpmem && ./osxpmem --format raw /Volumes/'%s'/'%s'" % (f, locate, RAM) ], shell=True)
 		var_action = "null"
+	sys.exit()
+	shutil.rmtree(f)
+
+		
+
+def fct_artefacts():
+	fichier = raw_input("Choisissez un nom pour le fichier tar.gz de sortie :")
+	with open(fichier,"wb") as ofile:
+		output = subprocess.Popen(["/usr/bin/python2.7 outils/osxcollector.py -c -d -l -i '%s'" % fichier ], shell=True)
 		sys.exit()
 
 def fct_artefact():
@@ -46,12 +58,16 @@ def fct_artefact():
 	locate = raw_input("Dans quel volume voulez-vous le copier?")
 	fichier = raw_input("Choisissez un nom pour le fichier tar.gz de sortie :")
 	with open(RAM,"wb") as outfile:
-		shutil.copyfile('osxpmem', '/tmp/osxpmem')
-		shutil.copytree('pmem.kext', '/tmp/pmem.kext')
-		output = subprocess.Popen(["cd /tmp && chmod +x pmem.kext osxpmem && ./osxpmem --format raw /Volumes/'%s'/'%s'" % (locate, RAM) ], shell=True)
+		f = tempfile.mkdtemp()
+		shutil.copyfile('osxpmem', f + '/osxpmem')
+		shutil.copytree('pmem.kext', f + '/pmem.kext')
+		output = subprocess.Popen(["cd %s && chmod +x pmem.kext osxpmem && ./osxpmem --format raw /Volumes/'%s'/'%s'" % (f, locate, RAM) ], shell=True)
+		
 	with open(fichier,"wb") as ofile:
 		output = subprocess.Popen(["/usr/bin/python2.7 outils/osxcollector.py -c -d -l -i '%s'" % fichier ], shell=True)
+	shutil.rmtree(f)
 	sys.exit()
+
 def fct_checksum():
 	def md5file(path, blocksize = 65536):
 		afile = open(path, 'rb')
@@ -123,15 +139,17 @@ while var_attack != "q":
 	elif var_version == "18" : 
 		print_red("Votre version d'OSX est: Mojave / 10.14")
 	else: 
-		print_red("\n\nVersion d'OSX non supporté.\n\n")
+		print_red("\n\nVersion d'OSX non supportÃ©.\n\n")
 		exit()
 
+	print_red("Le nom du Mac à analyser est: " + platform.node())
 	print_log("Notez cette date/heure dans votre rapport: " + str(datetime.datetime.now()))
 	var_action = "null"
 	while var_action == "null":
 		print_green("1: Dump DE LA RAM")
-		print_green("2: Dump DE LA RAM ET ARTEFACT")
-		print_green("3: CheckSum de tous les fichiers presents sur le Disque")
+		print_green("2: Dump des artefacts")
+		print_green("3: Dump DE LA RAM ET ARTEFACT")
+		print_green("4: CheckSum de tous les fichiers presents sur le Disque")
 		print_green("q: pour quitter")
 		var_action=raw_input("\nVotre choix: > ")
 
@@ -139,13 +157,16 @@ while var_attack != "q":
 		fct_dump_RAM()
 		var_action = "null"
 	elif var_action == "2":
-		fct_artefact() 
+		fct_artefacts()
 		var_action = "null"
 	elif var_action == "3":
+		fct_artefact() 
+		var_action = "null"
+	elif var_action == "4":
 		fct_checksum() 
 		var_action = "null"
 	elif var_action == "q": 
 		exit()
 	else: 
-		print_red("\nVeuillez choisir 1, 2, 3 ou q\n")
+		print_red("\nVeuillez choisir 1, 2, 3, 4 ou q\n")
 var_action = "null"
