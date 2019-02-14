@@ -5,3 +5,5 @@ root@mimosa# sudo su
 root@mimosa# cd dump_ramOsx && chown -R root:wheel pmem.kext/
 
 root@mimosa# ./dump_OSX.py
+
+Todo: use fseventparser and sysdiagnose in the script
