@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 #  OS X Collector
@@ -41,27 +41,27 @@ from sqlite3 import connect
 from sqlite3 import OperationalError
 from traceback import extract_tb
 
-import Foundation
-import macholib.MachO
-import objc
-from xattr import getxattr
+#import Foundation
+#import macholib.MachO
+#import objc
+#from xattr import getxattr
 
 __version__ = '1.9'
 
 ROOT_PATH = '/'
 """Global root path to build all further paths off of"""
 
-DEBUG_MODE = False
-"""Global debug mode flag for whether to enable breaking into pdb"""
+#DEBUG_MODE = False
+#"""Global debug mode flag for whether to enable breaking into pdb"""
 
 
-def debugbreak():
-    """Break in debugger if global DEBUG_MODE is set"""
-    global DEBUG_MODE
-
-    if DEBUG_MODE:
-        import pdb
-        pdb.set_trace()
+#def debugbreak():
+#    """Break in debugger if global DEBUG_MODE is set"""
+#    global DEBUG_MODE
+#
+#    if DEBUG_MODE:
+#        import pdb
+#        pdb.set_trace()
 
 
 HomeDir = namedtuple('HomeDir', ['user_name', 'path'])
@@ -151,9 +151,9 @@ def _hash_file(file_path):
                     hasher.update(chunk)
 
             return [hasher.hexdigest() for hasher in hashers]
-    except Exception:
-        debugbreak()
-        return ['', '', '']
+#    except Exception:
+#        debugbreak()
+#        return ['', '', '']
 
 
 DATETIME_2001 = datetime(2001, 1, 1)
@@ -220,7 +220,7 @@ def _value_to_datetime(val):
     # Try various versions of converting a number to a datetime.
     # Ordering is important as a timestamp may be "valid" with multiple different conversion algorithms
     # but it won't necessarily be the correct timestamp
-    if (isinstance(val, basestring)):
+    if (isinstance(val, str)):
         try:
             val = float(val)
         except Exception:
@@ -364,20 +364,20 @@ def _normalize_val(val, key=None):
             return _datetime_to_string(ts)
 
     try:
-        if isinstance(val, basestring):
+        if isinstance(val, str):
             try:
                 # Firefox history entries contain reversed host name
                 # while scope value in webapps_store entries also have it suffixed
                 # by protocol and port number, e.g. "moc.elpmaxe.www.:http:80"
                 if key in ['rev_host', 'scope']:
                     val = val.split(':')[0][::-1]
-                return unicode(val).decode(encoding='utf-8', errors='ignore')
+                return str(val).decode(encoding='utf-8', errors='ignore')
             except UnicodeEncodeError:
                 return val
         elif isinstance(val, buffer):
             # Not all buffers will contain text so this is expected to fail
             try:
-                return unicode(val).decode(encoding='utf-16le', errors='ignore')
+                return str(val).decode(encoding='utf-16le', errors='ignore')
             except Exception:
                 return repr(val)
         elif isinstance(val, Number):
@@ -387,21 +387,21 @@ def _normalize_val(val, key=None):
         elif isinstance(val, Foundation.NSArray):
             return [_normalize_val(stuff) for stuff in val]
         elif isinstance(val, Foundation.NSDictionary) or isinstance(val, dict):
-            return dict([(k, _normalize_val(val.get(k), k)) for k in val.keys()])
+            return dict([(k, _normalize_val(val.get(k), k)) for k in list(val.keys())])
         elif isinstance(val, Foundation.NSDate):
             # NSDate could have special case handling
             return repr(val)
         elif not val:
             return ''
-        else:
-            debugbreak()
-            return repr(val)
+#        else:
+#            debugbreak()
+#            return repr(val)
     except Exception as normalize_val_e:
         to_print = '[ERROR] _normalize_val {0}\n'.format(repr(normalize_val_e))
         sys.stderr.write(to_print)
 
-        debugbreak()
-        return repr(val)
+#        debugbreak()
+#        return repr(val)
 
 
 def _decode_error_description(error):
@@ -524,7 +524,7 @@ class CodeSignChecker(object):
             A SecStaticCodeRef wrapped with a CFTypeWrapper
         """
 
-        if isinstance(file_path, unicode):
+        if isinstance(file_path, str):
             file_path = file_path.encode(encoding='utf-8', errors='ignore')
 
         # file_path as NSString
@@ -708,7 +708,7 @@ class CodeSignChecker(object):
         cfdict_information = cls.SecCodeCopySigningInformation(static_code.val)
         cfarray_cert_chain = cls.CFDictionary_objectForKey(cfdict_information.val, cls.kSecCodeInfoCertificates)
 
-        for index in xrange(cls.CFArray_count(cfarray_cert_chain)):
+        for index in range(cls.CFArray_count(cfarray_cert_chain)):
             certificate = cls.CFArray_objectAtIndex(cfarray_cert_chain, index)
 
             try:
@@ -815,71 +815,71 @@ class Logger(object):
             cls.output_file.write('\n')
             cls.output_file.flush()
             cls.lines_written += 1
-        except Exception as e:
-            debugbreak()
-            cls.log_exception(e)
+#        except Exception as e:
+#            debugbreak()
+#            cls.log_exception(e)
 
     @classmethod
-    def log_warning(cls, message):
-        """Writes a warning message to JSON output and optionally splats a string to stderr if DEBUG_MODE.
+#    def log_warning(cls, message):
+#        """Writes a warning message to JSON output and optionally splats a string to stderr if DEBUG_MODE.
 
-        Args:
-            message: String with a warning message
-        """
-        global DEBUG_MODE
+#        Args:
+#            message: String with a warning message
+#        """
+#        global DEBUG_MODE
 
-        cls.log_dict({'osxcollector_warn': message})
-        if DEBUG_MODE:
-            sys.stderr.write('[WARN] ')
-            sys.stderr.write(message)
-            sys.stderr.write(' - {0}\n'.format(repr(Logger.Extra.extras)))
+#        cls.log_dict({'osxcollector_warn': message})
+#        if DEBUG_MODE:
+#            sys.stderr.write('[WARN] ')
+#            sys.stderr.write(message)
+#            sys.stderr.write(' - {0}\n'.format(repr(Logger.Extra.extras)))
 
-    @classmethod
-    def log_error(cls, message):
-        """Writes a warning message to JSON output and to stderr.
+#    @classmethod
+#    def log_error(cls, message):
+#        """Writes a warning message to JSON output and to stderr.
 
-        Args:
-            message: String with a warning message
-        """
-        cls.log_dict({'osxcollector_error': message})
-        sys.stderr.write('[ERROR] ')
-        sys.stderr.write(message)
-        sys.stderr.write(' - {0}\n'.format(repr(Logger.Extra.extras)))
+#        Args:
+#            message: String with a warning message
+#        """
+#        cls.log_dict({'osxcollector_error': message})
+#        sys.stderr.write('[ERROR] ')
+#        sys.stderr.write(message)
+#        sys.stderr.write(' - {0}\n'.format(repr(Logger.Extra.extras)))
 
-    @classmethod
-    def log_exception(cls, e, message=''):
-        """Splat out an Exception instance as a warning
+#    @classmethod
+#    def log_exception(cls, e, message=''):
+#        """Splat out an Exception instance as a warning
 
-        Args:
-            e: An instance of an Exception
-            message: a str message to log with the Exception
-        """
-        exc_type, _, exc_traceback = sys.exc_info()
+#        Args:
+#            e: An instance of an Exception
+#            message: a str message to log with the Exception
+#        """
+#        exc_type, _, exc_traceback = sys.exc_info()
 
-        to_print = '{0} {1} {2} {3}'.format(message, e.message or '', exc_type, extract_tb(exc_traceback))
-        cls.log_error(to_print)
+#        to_print = '{0} {1} {2} {3}'.format(message, e.message or '', exc_type, extract_tb(exc_traceback))
+#        cls.log_error(to_print)
 
-    class Extra(object):
+#    class Extra(object):
 
-        """A context class for adding additional params to be logged with every line written by Logger"""
+#        """A context class for adding additional params to be logged with every line written by Logger"""
 
-        extras = {}
-        # Class level dict for storing extras
+#        extras = {}
+#        # Class level dict for storing extras
 
-        def __init__(self, key, val):
-            self.key = key
-            self.val = val
+#        def __init__(self, key, val):
+#            self.key = key
+#            self.val = val
 
-        def __enter__(self):
-            global DEBUG_MODE
-            Logger.Extra.extras[self.key] = self.val
+#        def __enter__(self):
+#            global DEBUG_MODE
+#            Logger.Extra.extras[self.key] = self.val
 
-            if DEBUG_MODE:
-                sys.stderr.write(dumps({self.key: self.val}))
-                sys.stderr.write('\n')
+#            if DEBUG_MODE:
+#                sys.stderr.write(dumps({self.key: self.val}))
+#                sys.stderr.write('\n')
 
-        def __exit__(self, type, value, traceback):
-            del Logger.Extra.extras[self.key]
+#        def __exit__(self, type, value, traceback):
+#            del Logger.Extra.extras[self.key]
 
 PATH_ENVIRONMENT_NAME = "PATH"
 
@@ -930,9 +930,9 @@ class Collector(object):
 
                 try:
                     collection_method()
-                except Exception as section_e:
-                    debugbreak()
-                    Logger.log_exception(section_e, message='failed section')
+    #            except Exception as section_e:
+    #                debugbreak()
+    #                Logger.log_exception(section_e, message='failed section')
 
     def _is_fde_enabled(self):
         """Gathers the Full Disc Encryption status of the system."""
@@ -1686,9 +1686,9 @@ class LogFileArchiver(object):
                 dst = pathjoin(target_dir_path, file_name)
                 try:
                     shutil.copyfile(src, dst)
-                except Exception as archive_e:
-                    debugbreak()
-                    Logger.log_exception(archive_e, message='src[{0}] dst[{1}]'.format(src, dst))
+    #            except Exception as archive_e:
+    #                debugbreak()
+    #                Logger.log_exception(archive_e, message='src[{0}] dst[{1}]'.format(src, dst))
 
     def compress_directory(self, file_name, output_dir_path, target_dir_path):
         """Compress a directory into a .tar.gz
@@ -1701,9 +1701,9 @@ class LogFileArchiver(object):
         try:
             # Zip the whole thing up
             shutil.make_archive(file_name, format='gztar', root_dir=output_dir_path, base_dir=target_dir_path)
-        except Exception as compress_directory_e:
-            debugbreak()
-            Logger.log_exception(compress_directory_e)
+#        except Exception as compress_directory_e:
+#            debugbreak()
+#            Logger.log_exception(compress_directory_e)
 
 
 class kyphosis():
@@ -1756,7 +1756,7 @@ class kyphosis():
             self.end_fat_hdr = self.bin.tell()
             beginning = True
             self.count = 0
-            for hdr, value in self.fat_hdrs.iteritems():
+            for hdr, value in self.fat_hdrs.items():
                 if beginning is True:
                     self.beginOffset = self.end_fat_hdr
                     self.endOffset = value['Offset']
@@ -1780,7 +1780,7 @@ class kyphosis():
             self.extra_data_found = True
             self.extra_data[self.count] = self.empty_space
             if self.writeFile is True:
-                print "Writing to " + os.path.basename(self.someFile) + '.extra_data_section' + str(self.count)
+                print("Writing to " + os.path.basename(self.someFile) + '.extra_data_section' + str(self.count))
                 with open(os.path.basename(self.someFile) + '.extra_data_section' + str(self.count), 'w') as h:
                     h.write(self.empty_space)
 
@@ -1834,14 +1834,14 @@ class kyphosis():
                 self.extra_data_found = True
                 self.extra_data['extra_data_end'] = extra_data_end
                 if self.writeFile is True:
-                    print "Writing to " + os.path.basename(self.someFile) + ".extra_data_end"
+                    print("Writing to " + os.path.basename(self.someFile) + ".extra_data_end")
                     with open(os.path.basename(self.someFile) + '.extra_data_end', 'w') as g:
                         g.write(extra_data_end)
 
 
 def main():
 
-    global DEBUG_MODE
+#    global DEBUG_MODE
     global ROOT_PATH
     global strict
 
@@ -1941,4 +1941,3 @@ def main():
 
 if __name__ == '__main__':
     main(), sys.exit()
-
